@@ -1,13 +1,15 @@
-package com.s3valkov.vendingmachineapp;
+package com.s3valkov.app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class VendingMachineAppApplication {
+public class VendingMachineApp {
 
 	public static void main(String[] args) {
-		SpringApplication.run(VendingMachineAppApplication.class, args);
+		SpringApplication.run(VendingMachineApp.class, args);
 	}
+
+
 
 }
