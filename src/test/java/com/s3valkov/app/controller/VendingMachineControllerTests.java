@@ -1,4 +1,4 @@
-package com.s3valkov.app;
+package com.s3valkov.app.controller;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +11,10 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import static com.s3valkov.app.controller.VendingController.BUY_PRODUCT_URL_PART;
+import static com.s3valkov.app.controller.VendingController.INSERT_COIN_URL_PART;
+import static com.s3valkov.app.controller.VendingController.INSERT_COIN_URL_RESET;
+import static com.s3valkov.app.controller.VendingController.PRODUCTS_URL_PART;
 import static com.s3valkov.app.util.Constants.INSUFFICIENT_COINS_ERROR_MESSAGE;
 import static com.s3valkov.app.util.Constants.INVALID_COIN_ERROR_MESSAGE;
 import static com.s3valkov.app.util.Constants.INVALID_PRODUCT_DETAILS;
@@ -26,13 +30,13 @@ class VendingMachineControllerTests {
     @Autowired
     private MockMvc mockMvc;
 
-    private static final String JSON_PAYLOAD_PRODUCT_ADD = "{\"id\": 1, \"name\": \"TestProduct\", \"price\": 1.25, \"quantity\": 5}";
-    private static final String JSON_PAYLOAD_INVALID_PRODUCT = "{\"id\": 3, \"name\": \"InvalidProduct\", \"price\": -1.25, \"quantity\": -5}";
+    private static final String JSON_PAYLOAD_PRODUCT_ADD = "{\"name\": \"TestProduct\", \"price\": 125, \"quantity\": 5}";
+    private static final String JSON_PAYLOAD_INVALID_PRODUCT = "{\"name\": \"InvalidProduct\", \"price\": -125, \"quantity\": -5}";
 
     @BeforeEach
     void setup() throws Exception {
-        // Reset the vending machine state before each test
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/reset"));
+        addProduct(JSON_PAYLOAD_PRODUCT_ADD);
+        mockMvc.perform(MockMvcRequestBuilders.post("/api" + INSERT_COIN_URL_RESET));
     }
 
     @Test
@@ -53,60 +57,51 @@ class VendingMachineControllerTests {
 
     @Test
     void testBuyProduct() throws Exception {
-        addProduct(JSON_PAYLOAD_PRODUCT_ADD);
-
         // Insert enough coins
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/insert-coin/200"));
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/insert-coin/50"));
+        mockMvc.perform(MockMvcRequestBuilders.post("/api"+ INSERT_COIN_URL_PART + "/200"));
+        mockMvc.perform(MockMvcRequestBuilders.post("/api"+ INSERT_COIN_URL_PART + "/50"));
 
         // Buy the product
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/buy/1"))
+        mockMvc.perform(MockMvcRequestBuilders.post("/api" + BUY_PRODUCT_URL_PART + "/1"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string(PRODUCT_BUY_SUCCESSFUL));
     }
 
     @Test
     void testInsufficientCoins() throws Exception {
-        String jsonPayload = "{\"id\": 2, \"name\": \"TestProduct\", \"price\": 1.25, \"quantity\": 5}";
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/add")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonPayload))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string(PRODUCT_ADDED_SUCCESSFUL));
-        // Assuming productId 2 exists in the inventory and requires more than the inserted coins
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/insert-coin/100"))
+        addProduct(JSON_PAYLOAD_PRODUCT_ADD);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api"+ INSERT_COIN_URL_PART + "/50"))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/buy/2"))
+        mockMvc.perform(MockMvcRequestBuilders.post("/api" + BUY_PRODUCT_URL_PART + "/2"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string(INSUFFICIENT_COINS_ERROR_MESSAGE));
     }
 
     @Test
     void testRemoveProduct() throws Exception {
-        addProduct(JSON_PAYLOAD_PRODUCT_ADD);
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/remove/1"))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api" + PRODUCTS_URL_PART + "/1"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string(PRODUCT_REMOVE_SUCCESS_MESSAGE));
     }
 
-
     @Test
     void testInvalidCoin() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/insert-coin/5"))
+        mockMvc.perform(MockMvcRequestBuilders.post("/api"+ INSERT_COIN_URL_PART + "/5"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string(INVALID_COIN_ERROR_MESSAGE));
     }
 
     @Test
     void testInsertCoin() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/insert-coin/50"))
+        mockMvc.perform(MockMvcRequestBuilders.post("/api"+ INSERT_COIN_URL_PART + "/50"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string(VALID_COIN_INSERTION +  50));
     }
 
     public ResultActions addProduct(String jsonPayload) throws Exception {
-        return mockMvc.perform(MockMvcRequestBuilders.post("/api/add")
+        return mockMvc.perform(MockMvcRequestBuilders.post("/api" + PRODUCTS_URL_PART)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonPayload));
     }

@@ -1,6 +1,6 @@
 # Vending Machine API
 
-This API provides functionality for managing a vending machine, including inventory management, coin insertion, and product purchasing.
+This API provides functionality for managing a vending machine, including inventory management, coin insertion, and productDetails purchasing.
 
 
 ## Prerequisites
@@ -31,15 +31,14 @@ curl http://localhost:8080/api/products
 ### 2. Add Product
 
 **Endpoint:**
-POST /api/add
+POST /api/products
 
 
 **Request:**
 ```json
 {
-  "id": 1,
   "name": "Fanta",
-  "price": 1.75,
+  "price": 175,
   "quantity": 8
 }
 ``` 
@@ -48,20 +47,19 @@ POST /api/add
 Add a new product to the inventory.
 
 ```console
-curl -X POST -H "Content-Type: application/json" -d '{"id": 1, "name": "Fanta", "price": 1.75, "quantity": 8}' http://localhost:8080/api/add
+curl -X POST -H "Content-Type: application/json" -d '{"name": "Fanta", "price": 1.75, "quantity": 8}' http://localhost:8080/api/products
 ```
 
 ### 3. Update Product
 **Endpoint:**
-PUT /api/update/
+PUT /api/products/{productId}
 
 
 **Request:**
 ```json
 {
-  "id": 1,
   "name": "Fanta Lemon",
-  "price": 2.00,
+  "price": 200,
   "quantity": 20
 }
 ```
@@ -70,18 +68,18 @@ PUT /api/update/
 Update an existing product in the inventory.
 
 ```console
-curl -X POST -H "Content-Type: application/json" -d '{"id": 1, "name": "Fanta Lemon", "price": 2.25, "quantity": 12}' http://localhost:8080/api/update
+curl -X PUT -H "Content-Type: application/json" -d '{"name": "Fanta Lemon", "price": 225, "quantity": 12}' http://localhost:8080/api/products/1
 ```
 
-### 4. Remove Product
+### 4. Delete Product
 **Endpoint:**
-DELETE /api/remove/{productId}
+DELETE /api/products/{productId}
 
 **Description:**
-Remove a product from the inventory.
+Delete a product from the inventory.
 
 ```console
-curl -X DELETE http://localhost:8080/api/remove/1
+curl -X DELETE http://localhost:8080/api/products/1
 ```
 
 ### 5. Insert Coins
@@ -103,7 +101,7 @@ POST /api/reset
 Reset the inserted coins and return the total.
 
 ```console
-curl -X POST http://localhost:8080/api/reset
+curl -X POST http://localhost:8080/api/insert-coin/reset
 ```
 
 ### 7. Buy Product

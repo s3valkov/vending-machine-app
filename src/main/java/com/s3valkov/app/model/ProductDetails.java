@@ -1,19 +1,9 @@
 package com.s3valkov.app.model;
 
-public class Product {
-    private Integer id;
+public class ProductDetails {
     private String name;
-    private Double price;
+    private Integer price;
     private Integer quantity;
-
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;
@@ -23,11 +13,11 @@ public class Product {
         this.name = name;
     }
 
-    public Double getPrice() {
+    public Integer getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(Integer price) {
         this.price = price;
     }
 
@@ -37,9 +27,5 @@ public class Product {
 
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
-    }
-
-    public Integer getPriceInCoins() {
-        return (int) (price * 100);
     }
 }
